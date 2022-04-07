@@ -1,5 +1,6 @@
-import threading
 import discord
+from discord import Option
+from discord.ext import commands
 from dotenv import load_dotenv
 from mcrcon import MCRcon
 import os
@@ -16,8 +17,8 @@ class Rcon:
         res = self.mcr.command(com)
 
         if self.debug:
-            print(res)
-            print(com)
+            print(f'respons: {res}')
+            print(f'command: {com}')
         return res
 
 
@@ -31,11 +32,20 @@ bot = discord.Bot(description='これはテスト用ニートです')
 
 
 @bot.slash_command(name='say', description='sayをしたい')
-async def say(ctx):
-    com = 'say test'
+@commands.cooldown(rate=5, per=3)
+@commands.has_role(956799245481025548)
+async def say(ctx, string: Option(str, description='なんて送りますかね', default='野菜食べろってお前、ワイが野菜嫌いだと思ってるん？（ほりえ')):
+    com = f'say {string}'
     res = await rcon.send_command(com)
     await ctx.respond(f'response: {res}\nsend command: {com}')
 
+
+@bot.event
+async def on_application_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown) or isinstance(error, commands.MissingRole):
+        await ctx.respond(error, ephemeral=True)
+    else:
+        raise error
 
 HOST = os.getenv('HOST')
 PASSWD = os.getenv('PASSWD')
