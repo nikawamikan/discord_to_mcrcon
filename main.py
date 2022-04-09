@@ -29,11 +29,11 @@ async def send_rcon(com, debug):
 
 @bot.slash_command(name='say', description='sayをしたい')
 @commands.cooldown(rate=5, per=3)
-@commands.has_role(956799245481025548)
-async def say(ctx, string: Option(str, description='なんて送りますかね', default='野菜食べろってお前、ワイが野菜嫌いだと思ってるん？（ほりえ')):
+@commands.has_role(879627587498938368)
+async def say(ctx, string: Option(str, description='なんて送りますかね', default='おささってるｗｗおささってるｗｗｗｗ')):
     com = f'say {string}'
     res = await send_rcon(com, debug=True)
-    await ctx.respond(f'response: {res}\nsend command: {com}')
+    await ctx.respond(f'respons: {res}\nsend command: {com}')
 
 
 @bot.event
@@ -41,6 +41,6 @@ async def on_application_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown) or isinstance(error, commands.MissingRole):
         await ctx.respond(error, ephemeral=True)
     else:
-        raise error
+        await ctx.respond(error, ephemeral=True)
 
 bot.run(TOKEN)
