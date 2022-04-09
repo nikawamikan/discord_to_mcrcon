@@ -8,27 +8,23 @@ import os
 load_dotenv()
 
 
-class Rcon:
-    def __init__(self, mcr, debug) -> None:
-        self.mcr = mcr
-        self.debug = debug
-
-    async def send_command(self, com):
-        res = self.mcr.command(com)
-
-        if self.debug:
-            print(f'respons: {res}')
-            print(f'command: {com}')
-        return res
-
-
-rcon = None
-
-
 TOKEN = os.getenv('TOKEN')
 GUILD_IDS = [int(os.getenv('GUILDID'))]
 
 bot = discord.Bot(description='これはテスト用ニートです')
+
+HOST = os.getenv('HOST')
+PASSWD = os.getenv('PASSWD')
+PORT = int(os.getenv('PORT'))
+
+
+async def send_rcon(com, debug):
+    with MCRcon(HOST, PASSWD, PORT) as mcr:
+        res = mcr.command(com)
+        if debug:
+            print(f'respons: {res}')
+            print(f'command: {com}')
+        return res
 
 
 @bot.slash_command(name='say', description='sayをしたい')
@@ -36,7 +32,7 @@ bot = discord.Bot(description='これはテスト用ニートです')
 @commands.has_role(956799245481025548)
 async def say(ctx, string: Option(str, description='なんて送りますかね', default='野菜食べろってお前、ワイが野菜嫌いだと思ってるん？（ほりえ')):
     com = f'say {string}'
-    res = await rcon.send_command(com)
+    res = await send_rcon(com, debug=True)
     await ctx.respond(f'response: {res}\nsend command: {com}')
 
 
@@ -47,10 +43,4 @@ async def on_application_command_error(ctx, error):
     else:
         raise error
 
-HOST = os.getenv('HOST')
-PASSWD = os.getenv('PASSWD')
-PORT = int(os.getenv('PORT'))
-
-with MCRcon(HOST, PASSWD, PORT) as mcr:
-    rcon = Rcon(mcr, True)
-    bot.run(TOKEN)
+bot.run(TOKEN)
